@@ -29,14 +29,14 @@ export class DiagnosisController {
   constructor(private readonly diagnosisService: DiagnosisService) {}
 
   @Post()
-  create(@Body() createDiagnosisDto: CreateDiagnosisDto) {
-    return this.diagnosisService.create(createDiagnosisDto);
+  async create(@Body() createDiagnosisDto: CreateDiagnosisDto) {
+    return await this.diagnosisService.create(createDiagnosisDto);
   }
 
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
-  upload(
+  async upload(
     @Body() uploadDiagnosisDto: UploadDiagnosisDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
@@ -50,8 +50,26 @@ export class DiagnosisController {
     )
     file: Express.Multer.File,
   ) {
-    // file: file.buffer.toString(),
-    console.log(file);
+    const importedData = file.buffer.toString().split('\n');
+    return await Promise.allSettled(
+      importedData.map(async (record) => {
+        const recordArray = record
+          .replace(/"(.*?)"/g, (str) => str.replaceAll(',', '###COMMA###'))
+          .split(',');
+
+        await this.diagnosisService.create({
+          categoryCode: recordArray[0]?.replaceAll('###COMMA###', ','),
+          diagnosisCode: recordArray[1]?.replaceAll('###COMMA###', ','),
+          fullCode: recordArray[2]?.replaceAll('###COMMA###', ','),
+          abbreviatedDescription: recordArray[3]?.replaceAll(
+            '###COMMA###',
+            ',',
+          ),
+          fullDescription: recordArray[4]?.replaceAll('###COMMA###', ','),
+          categoryTitle: recordArray[5]?.replaceAll('###COMMA###', ','),
+        });
+      }),
+    );
   }
 
   @ApiQuery({
