@@ -5,14 +5,14 @@ import { Response } from 'express';
  * @param res the ExpressResponse object.
  * @param statusCode the status code (success if in the 200s, failure otherwise).
  * @param message the message.
- * @param data the data contents.
+ * @param items the data contents.
  * @returns {res} the response object, for chaining.
  */
-export const createResponse = async (
+export const customResponse = async (
   res: Response,
   statusCode = 200,
   message = '',
-  data: any,
+  items: any,
   pagination: any = null,
 ) => {
   const success = 200 <= statusCode && statusCode < 300;
@@ -21,7 +21,7 @@ export const createResponse = async (
     success,
     status: statusCode,
     message,
-    data,
+    items,
     pagination,
   });
 };

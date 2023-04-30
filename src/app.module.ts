@@ -13,6 +13,12 @@ import { config } from './config';
       ssl: {
         rejectUnauthorized: false,
       },
+      // host: 'postgres',
+      // port: 5432,
+      // username: 'admin',
+      // password: '12345',
+      // database: 'postgres',
+      // ssl: false,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: config.IS_DEVELOPMENT ? true : false,
       autoLoadEntities: true,
