@@ -10,13 +10,20 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DiagnosisService } from './diagnosis.service';
 import { CreateDiagnosisDto } from './dto/create-diagnosis.dto';
 import { UpdateDiagnosisDto } from './dto/update-diagnosis.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes } from '@nestjs/swagger';
+import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { Diagnosis } from './entities/diagnosis.entity';
+import { UploadDiagnosisDto } from './dto/upload-diagnosis.dto';
 
+@ApiTags('Diagnosis')
 @Controller('diagnosis')
 export class DiagnosisController {
   constructor(private readonly diagnosisService: DiagnosisService) {}
@@ -30,6 +37,7 @@ export class DiagnosisController {
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file'))
   upload(
+    @Body() uploadDiagnosisDto: UploadDiagnosisDto,
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
@@ -46,26 +54,43 @@ export class DiagnosisController {
     console.log(file);
   }
 
+  @ApiQuery({
+    name: 'page',
+    type: 'integer',
+    description: 'The Page Number',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: 'integer',
+    description: 'The Number of Elements per page',
+    required: false,
+  })
   @Get()
-  findAll() {
-    return this.diagnosisService.findAll();
+  async findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(25), ParseIntPipe) limit = 25,
+  ): Promise<Pagination<Diagnosis>> {
+    limit = limit > 100 ? 100 : limit;
+    return this.diagnosisService.findAll({
+      page,
+      limit,
+      route: `${process.env.BASE_URL}/api/v1/diagnosis`,
+    });
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.diagnosisService.findOne(+id);
+  @Get(':diagnosisId')
+  findOne(@Param('diagnosisId') diagnosisId: string) {
+    return this.diagnosisService.findOne(diagnosisId);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateDiagnosisDto: UpdateDiagnosisDto,
-  ) {
-    return this.diagnosisService.update(+id, updateDiagnosisDto);
+  @Patch()
+  update(@Body() updateDiagnosisDto: UpdateDiagnosisDto) {
+    return this.diagnosisService.update(updateDiagnosisDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.diagnosisService.remove(+id);
+  @Delete(':diagnosisId')
+  remove(@Param('diagnosisId') diagnosisId: string) {
+    return this.diagnosisService.remove(diagnosisId);
   }
 }
