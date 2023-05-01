@@ -68,7 +68,7 @@ export class DiagnosisController {
     return customResponse(
       res,
       diagnosis as unknown as number,
-      'Diagnosis successfully retrived',
+      'Diagnosis successfully uploaded',
       null,
       null,
     );

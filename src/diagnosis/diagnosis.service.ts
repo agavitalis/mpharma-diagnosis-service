@@ -58,41 +58,41 @@ export class DiagnosisService {
 
   async upload(file: Express.Multer.File) {
     const importedData = file.buffer.toString().split('\n');
-    Promise.all(
-      importedData.map(async (record) => {
-        const recordArray = record
-          .replace(/"(.*?)"/g, (str) => str.replaceAll(',', '###COMMA###'))
-          .split(',');
+    try {
+      await Promise.all(
+        importedData.map(async (record) => {
+          const recordArray = record
+            .replace(/"(.*?)"/g, (str) => str.replaceAll(',', '###COMMA###'))
+            .split(',');
 
-        await this.create({
-          categoryCode: formatString(recordArray[0]),
-          diagnosisCode: formatString(recordArray[1]),
-          fullCode: formatString(recordArray[2]),
-          abbreviatedDescription: formatString(recordArray[3]),
-          fullDescription: formatString(recordArray[4]),
-          categoryTitle: formatString(recordArray[5]),
-        });
-      }),
-    )
-      .then(function () {
-        //send out event to notificaton services
-        this.notificationServiceClient.emit(
-          'diagnosis-uploaded',
-          'upload-success',
-        );
-        return HttpStatus.ACCEPTED;
-      })
-      .catch(function (err) {
-        this.notificationServiceClient.emit(
-          'diagnosis-uploaded',
-          'upload-failure',
-        );
+          await this.create({
+            categoryCode: formatString(recordArray[0]),
+            diagnosisCode: formatString(recordArray[1]),
+            fullCode: formatString(recordArray[2]),
+            abbreviatedDescription: formatString(recordArray[3]),
+            fullDescription: formatString(recordArray[4]),
+            categoryTitle: formatString(recordArray[5]),
+          });
+        }),
+      );
 
-        throw new HttpException(
-          `Diagnosis processing failed with error: ${err.message}`,
-          HttpStatus.AMBIGUOUS,
-        );
-      });
+      //send out event to notificaton services
+      this.notificationServiceClient.emit(
+        'diagnosis-uploaded',
+        'upload-success',
+      );
+      return HttpStatus.ACCEPTED;
+    } catch (error) {
+      this.notificationServiceClient.emit(
+        'diagnosis-uploaded',
+        'upload-failure',
+      );
+
+      throw new HttpException(
+        `Diagnosis processing failed with error: ${error.message}`,
+        HttpStatus.AMBIGUOUS,
+      );
+    }
   }
 
   async update(updateDiagnosisDto: UpdateDiagnosisDto) {
