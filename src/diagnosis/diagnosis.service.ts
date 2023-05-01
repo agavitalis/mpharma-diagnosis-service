@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateDiagnosisDto } from './dto/create-diagnosis.dto';
 import { UpdateDiagnosisDto } from './dto/update-diagnosis.dto';
 import { Diagnosis } from './entities/diagnosis.entity';
@@ -11,12 +11,16 @@ import {
   paginate,
 } from 'nestjs-typeorm-paginate';
 import { formatString } from 'src/config/util';
+import { config } from 'src/config';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class DiagnosisService {
   constructor(
     @InjectRepository(Diagnosis)
     private readonly diagnosisRepository: Repository<Diagnosis>,
+    @Inject(config.RABBITMQ_NOTIFICATION_CLIENT)
+    private notificationServiceClient: ClientProxy,
   ) {}
 
   async create(createDiagnosisDto: CreateDiagnosisDto) {
@@ -71,9 +75,19 @@ export class DiagnosisService {
       }),
     )
       .then(function () {
+        //send out event to notificaton services
+        this.notificationServiceClient.emit(
+          'diagnosis-uploaded',
+          'upload-success',
+        );
         return HttpStatus.ACCEPTED;
       })
       .catch(function (err) {
+        this.notificationServiceClient.emit(
+          'diagnosis-uploaded',
+          'upload-failure',
+        );
+
         throw new HttpException(
           `Diagnosis processing failed with error: ${err.message}`,
           HttpStatus.AMBIGUOUS,
