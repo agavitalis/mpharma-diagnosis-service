@@ -3,8 +3,14 @@
 </p>
 
 ## Description
+This project is the diagnosis service of mPharma application
 
-[mPharma](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
+- Node.js 
+- Yarn or NPM
+- MongoDB
+- RabbitMQ
+
 
 ## Installation
 
@@ -16,26 +22,22 @@ $ npm install
 
 ```bash
 # development
-$ npm run start
-
-# watch mode
 $ npm run start:dev
 
 # production mode
-$ npm run start:prod
+$ npm run build
+$ npm run start
 ```
+
+## To access
+Open the browser and go to http://localhost:5001 to access
 
 ## Test
 
 ```bash
-# unit tests
+# unit tests -(incomplete)
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Stay in touch
