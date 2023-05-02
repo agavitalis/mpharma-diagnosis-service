@@ -9,15 +9,11 @@ import { config } from './config';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      // url: config.DB_URL,
-      // ssl: {
-      //   rejectUnauthorized: false,
-      // },
       host: 'postgres',
-      port: 5432,
-      username: 'admin',
-      password: '12345',
-      database: 'postgres',
+      port: config.DB_PORT || 5432,
+      username: config.DB_USERNAME || 'admin',
+      password: config.DB_PASSWORD || '12345',
+      database: config.DB_NAME || 'postgres',
       ssl: false,
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: config.IS_DEVELOPMENT ? true : false,
