@@ -23,7 +23,7 @@ import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { Diagnosis } from './entities/diagnosis.entity';
 import { UploadDiagnosisDto } from './dto/upload-diagnosis.dto';
-import { customResponse } from 'src/config/response';
+import { customResponse } from '../config/response';
 import { Response } from 'express';
 
 @ApiTags('Diagnosis')

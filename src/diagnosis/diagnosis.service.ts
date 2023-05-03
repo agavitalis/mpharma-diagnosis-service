@@ -10,8 +10,7 @@ import {
   Pagination,
   paginate,
 } from 'nestjs-typeorm-paginate';
-import { formatString } from 'src/config/util';
-import { config } from 'src/config';
+import { config, formatString } from '../config';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()

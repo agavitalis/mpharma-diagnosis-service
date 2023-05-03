@@ -14,9 +14,9 @@ const envSchema = Joi.object({
 
 const { error, value: envVars } = envSchema.validate(process.env);
 
-if (error) {
-  throw new Error(`ENV Configuration error: \n${error.message}`);
-}
+// if (error) {
+//   throw new Error(`ENV Configuration error: \n${error.message}`);
+// }
 
 export const config = {
   IS_DEVELOPMENT:
